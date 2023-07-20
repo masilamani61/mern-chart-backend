@@ -1,0 +1,23 @@
+const express=require('express')
+const cors=require('cors')
+const { default: mongoose } = require('mongoose')
+const socketio=require('socket.io')
+const app=express()
+const http=require('http')
+const server=http.createServer(app)
+const io=socketio(server)
+app.use(cors())
+app.use(express.json())
+const chartroute=require('./chartsroute')
+const chartmodel = require('./model')
+mongoose.connect('mongodb+srv://vgmasilamani61:Masila12@cluster0.kuuobcs.mongodb.net/?retryWrites=true&w=majority').then(()=>{console.log('mongodb')})
+
+app.get('/',(req,res)=>{
+    res.send('api is running')
+})
+io.on('connection',(socket)=>{console.log('newclient is commected')
+chartmodel.find({}).then((data)=>{socket.emit('data',data)})
+})
+app.use('/chart',chartroute)
+
+server.listen(5000,()=>console.log('running'))
